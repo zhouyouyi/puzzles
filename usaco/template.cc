@@ -31,7 +31,7 @@ int main()
   solve( cin, cout );
 #else
   solve( fin, out );
-#enfif
+#endif
 
   return 0;
 }
