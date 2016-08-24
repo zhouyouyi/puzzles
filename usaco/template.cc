@@ -18,7 +18,7 @@
 
 using namespace std;
 
-void solve( ifstream& fin, ofstream& out )
+void solve( istream& fin, ostream& out )
 {
 }
 
@@ -27,7 +27,11 @@ int main()
   ofstream out( PROG ".out");
   ifstream fin( PROG ".in");
 
+#ifdef LOCAL
+  solve( cin, cout );
+#else
   solve( fin, out );
+#enfif
 
   return 0;
 }
