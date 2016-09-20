@@ -2,7 +2,9 @@
 *.out
 *.in
 *.txt
+*.obj
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
+.vscode/.*
+build/*
+X64/*
+puzzles.vcxproj
