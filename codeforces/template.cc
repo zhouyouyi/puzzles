@@ -10,6 +10,9 @@
 
 using namespace std;
 
+typedef unsigned long long ull_t;
+typedef long long ll_t;
+
 int main()
 {
     return 0;
