@@ -2,4 +2,9 @@
 *.out
 *.in
 *.txt
-
+*.obj
+.vscode/*
+.vscode/.*
+build/*
+X64/*
+puzzles.vcxproj
