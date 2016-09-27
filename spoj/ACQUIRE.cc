@@ -15,7 +15,7 @@ using namespace std;
 typedef unsigned long long ull_t;
 typedef long long ll_t;
 
-const static ull_t inf = std::numeric_limits<ull_t>::max();
+const static ll_t inf = std::numeric_limits<ll_t>::max();
 
 struct plot_t
 {
@@ -47,11 +47,31 @@ struct line_t
     {
         return double(other.b - b) / (k - other.k);
     }
+
+    bool is_parallel( const line_t& other ) const
+    {
+        return k == other.k;
+    }
+
+    ll_t y_at( ll_t x ) const
+    {
+        return k*x+b;
+    }
+};
+
+struct x0_less_t
+{
+    bool operator () ( const line_t& a, const line_t& b ) const
+    {
+        return a.x0 < b.x0;
+    }
 };
 
 int main()
 {
-    int N, i, j;
+    int N, i;
+
+    x0_less_t x0_less;
 
     cin >> N;
 
@@ -77,14 +97,50 @@ int main()
 
     V.clear();
 
-    vector<ull_t> T(N+1, 0);
+    vector<ll_t> T(N+1, 0);
+
+    vector<line_t> Q;
 
     for(i = 1; i <= N; ++i)
     {
-        T[i] = inf;
+        line_t l3(P[i-1].w, T[i-1]);
 
-        for(j = 0; j < i; ++j)
-            T[i] = min( T[i], ull_t( T[j] + P[j].w * P[i-1].h ) );
+        while( Q.size() > 1 )
+        {
+            line_t l2 = Q.back();
+            Q.pop_back();
+
+            if( l3.is_parallel( l2 ) )
+            {
+                if( l3.b >= l2.b )
+                {
+                    l3 = l2;
+                }
+            }
+            else
+            {
+                line_t& l1 = Q.back();
+
+                if( l3.intersect(l1) > l2.x0 )
+                {
+                    Q.push_back(l2);
+                }
+            }
+        }
+
+        if( Q.size() > 0 )
+            l3.x0 = l3.intersect( Q.back() );
+
+        Q.push_back(l3);
+
+        line_t xl(0,0);
+        xl.x0 = P[i-1].h;
+
+        vector<line_t>::iterator it = std::lower_bound( Q.begin(), Q.end(), xl, x0_less );
+
+        if( it == Q.end() ) --it;
+
+        T[i] = it->y_at( P[i-1].h );
     }
 
     cout << T[N] << endl;
