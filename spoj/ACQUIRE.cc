@@ -101,13 +101,16 @@ int main()
 
     vector<line_t> Q;
 
-    for(i = 1; i <= N; ++i)
+    line_t l1, l2, l3, xl(0,0);
+
+    for(i = 1; i <= P.size(); ++i)
     {
-        line_t l3(P[i-1].w, T[i-1]);
+        l3.k = P[i-1].w;
+        l3.b = T[i-1];
 
         while( Q.size() > 1 )
         {
-            line_t l2 = Q.back();
+            l2 = Q.back();
             Q.pop_back();
 
             if( l3.is_parallel( l2 ) )
@@ -119,11 +122,12 @@ int main()
             }
             else
             {
-                line_t& l1 = Q.back();
+                l1 = Q.back();
 
                 if( l3.intersect(l1) > l2.x0 )
                 {
                     Q.push_back(l2);
+                    break;
                 }
             }
         }
@@ -133,17 +137,17 @@ int main()
 
         Q.push_back(l3);
 
-        line_t xl(0,0);
         xl.x0 = P[i-1].h;
 
         vector<line_t>::iterator it = std::lower_bound( Q.begin(), Q.end(), xl, x0_less );
 
-        if( it == Q.end() ) --it;
+        //if( it == Q.end() ) --it;
+        --it;
 
         T[i] = it->y_at( P[i-1].h );
     }
 
-    cout << T[N] << endl;
+    cout << T[P.size()] << endl;
     
     return 0;
 }
