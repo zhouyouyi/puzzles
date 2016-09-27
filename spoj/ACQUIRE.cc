@@ -19,15 +19,33 @@ const static ull_t inf = std::numeric_limits<ull_t>::max();
 
 struct plot_t
 {
-    int w;
-    int h;
+    ll_t w;
+    ll_t h;
 
     plot_t() {}
-    plot_t(int ww, int hh) : w(ww), h(hh) {}
+    plot_t(ll_t ww, ll_t hh) : w(ww), h(hh) {}
 
     bool operator < ( const plot_t& p ) const
     {
         return h < p.h || (h == p.h && w > p.w);
+    }
+};
+
+// a line takes form of y = k*x + b
+struct line_t
+{
+    ll_t k;
+    ll_t b;
+
+    double x0; // the intersection point with the previous line
+
+    line_t() {}
+
+    line_t( ll_t kk, ll_t bb ) : k(kk), b(bb), x0( std::numeric_limits<double>::min() ) {}
+
+    double intersect( const line_t& other ) const
+    {
+        return double(other.b - b) / (k - other.k);
     }
 };
 
