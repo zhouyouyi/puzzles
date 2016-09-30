@@ -9,6 +9,9 @@
 #include <string>
 using namespace std;
 
+// typedef unsigned long long uint64_t;
+
+const static uint64_t inf = std::numeric_limits<uint64_t>::max();
 const static uint64_t MOD = 1E9L + 7L;
 
 int main() {
@@ -18,25 +21,19 @@ int main() {
     cin >> S;
     int N = S.size();
     
-    vector<uint64_t> T(N+1, 0);
-    vector<uint64_t> D(N+1, 0);
-    
-    T[0] = 0;
-    T[1] = S[0] - '0';
-
-    D[0] = 0;
-    D[1] = S[0] - '0';
+    uint64_t T = S[0] - '0';
+    uint64_t D = S[0] - '0';
     
     int i;
     for(i = 2; i <= N; ++i)
     {
         uint64_t num = S[i-1] - '0';
         
-        D[i] = ( D[i-1]*10 + (i*num) % MOD ) % MOD;
+        D = ( D * 10 + (i*num) % MOD ) % MOD;
 
-        T[i] = ( D[i] + T[i-1] ) % MOD;
+        T = ( D + T ) % MOD;
     }
     
-    cout << T[N] << endl;
+    cout << T << endl;
     return 0;
 }
