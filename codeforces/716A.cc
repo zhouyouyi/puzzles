@@ -15,10 +15,10 @@ typedef long long ll_t;
 
 int main()
 {
-    int N, C;
+    ll_t N, C;
     cin >> N >> C;
 
-    int i, a = -1, b, ans = 1;
+    ll_t i, a = -1, b, ans = 1;
 
     cin >> a;
 
