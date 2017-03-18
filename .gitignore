@@ -3,6 +3,7 @@
 *.in
 *.txt
 *.obj
+*.o
 .vscode/*
 .vscode/.*
 build/*
