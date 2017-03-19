@@ -1,0 +1,28 @@
+1. BUILD
+   $> make
+
+2. RUN
+   $> ./reyboard sample/config.txt sample/sample.in
+
+3. NOTES
+   The board can be represented by a 2D array of integers where 0 means no mirror,
+   -1 means mirror with infinite life and a positive number N means a mirror with
+   given life points N. The exit coordinates can be pre-determined easily if all
+   mirrors have infinite life points but since some mirrors may be destroyed after
+   a certain amount of "usage". The program has to run a simulation of the light
+   route of each ray.
+   My implementation will end up in dead loop if there is a ray loop inside the
+   board. However, by the nature of how mirrors deflect rays, I *think* there
+   shouldn't be any ray loop inside. I tried to construct one but couldn't. I might
+   be wrong though.
+   At the beginning, the special rules are applied for mirrors on the borders. If
+   a ray survives the first step then its movement is simulated step by step. As
+   stated below:
+     a. a ray enters the current grid cell
+     b. if the current cell has a mirror, then the ray is absorbed, mirror life
+        decreased by one and return
+     c. otherwise if there is a mirror in any of the diagonally adjacent cells,
+        the ray is deflected by the rules (only changing its direction but staying
+        in the same cell), go to step a.
+     d. otherwise advance the ray to the next cell in the same direction, go to
+        step a.

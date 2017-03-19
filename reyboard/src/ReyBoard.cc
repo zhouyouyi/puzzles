@@ -193,9 +193,7 @@ Coord ReyBoard::move(const Coord &c)
             return turnRight(c);
         }
 
-        exit = c;
-        exit.x--;
-        return exit;
+        return next(c);
     }
     break;
     case DOWNWARDS:
@@ -212,9 +210,7 @@ Coord ReyBoard::move(const Coord &c)
             return turnLeft(c);
         }
 
-        exit = c;
-        exit.x++;
-        return exit;
+        return next(c);
     }
     break;
     case RIGHTWARDS:
@@ -231,9 +227,7 @@ Coord ReyBoard::move(const Coord &c)
             return turnLeft(c);
         }
 
-        exit = c;
-        exit.y++;
-        return exit;
+        return next(c);
     }
     break;
     case LEFTWARDS:
@@ -250,9 +244,7 @@ Coord ReyBoard::move(const Coord &c)
             return turnRight(c);
         }
 
-        exit = c;
-        exit.y--;
-        return exit;
+        return next(c);
     }
     break;
     case NONE:
