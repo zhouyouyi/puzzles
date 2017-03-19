@@ -69,11 +69,12 @@ std::ostream& operator << ( std::ostream& os, const ReyBoardConfig& o )
 
     const ReyBoardConfig::MirrorConfigVec& vec = o.getMirrorConfigVec();
 
-    for ( int i = 0; i < vec.size(); ++i )
+    int len = vec.size();
+    for ( int i = 0; i < len; ++i )
     {
         os << vec[i];
 
-        if ( i != vec.size() - 1 ) os << ",";
+        if ( i != len - 1 ) os << ",";
     }
     os << "]}";
 

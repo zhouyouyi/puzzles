@@ -8,7 +8,8 @@ ReyBoard::ReyBoard(const ReyBoardConfig& config )
 {
     const ReyBoardConfig::MirrorConfigVec& vec = config.getMirrorConfigVec();
 
-    for ( int i = 0; i < vec.size(); ++i )
+    int len = vec.size();
+    for ( int i = 0; i < len; ++i )
     {
         m_board[vec[i].x][vec[i].y] = vec[i].hp;
     }
@@ -93,30 +94,29 @@ Coord ReyBoard::shoot( const Coord& c )
 {
     Coord exit;
 
-    if ( m_board[c.x][c.y] )
+    if ( hasMirror(c.x, c.y) )
     {
-        if ( m_board[c.x][c.y] != INFINITE_HP ) --m_board[c.x][c.y];
-        exit.x = -1;
-        exit.y = -1;
-        exit.dir = NONE;
-
-        return exit;
+        decreaseHP(c.x, c.y);
+        return disappear();
     }
+
+    int row = m_board.size();
+    int col = m_board.front().size();
 
     // special rule for mirrors on the borders
     if ( c.dir == UPWARDS || c.dir == DOWNWARDS )
     {
-        if ( c.y - 1 > 0 && m_board[c.x][c.y-1] )
+        if ( c.y-1 > 0 && hasMirror(c.x, c.y-1) )
         {
-            if ( m_board[c.x][c.y-1] != INFINITE_HP ) --m_board[c.x][c.y-1];
+            decreaseHP( c.x, c.y-1 );
             exit.x = c.x;
             exit.y = c.y;
             exit.dir = NONE;
             return exit;
         }
-        if ( c.y + 1 < m_board.front().size() && m_board[c.x][c.y+1] )
+        if ( c.y+1 < col && hasMirror(c.x, c.y+1) )
         {
-            if ( m_board[c.x][c.y+1] != INFINITE_HP ) --m_board[c.x][c.y+1];
+            decreaseHP( c.x, c.y+1 );
             exit.x = c.x;
             exit.y = c.y;
             exit.dir = NONE;
@@ -125,17 +125,17 @@ Coord ReyBoard::shoot( const Coord& c )
     }
     else if ( c.dir == LEFTWARDS || c.dir == RIGHTWARDS )
     {
-        if ( c.x - 1 > 0 && m_board[c.x-1][c.y] )
+        if ( c.x-1 > 0 && hasMirror(c.x-1, c.y) )
         {
-            if ( m_board[c.x-1][c.y] != INFINITE_HP ) --m_board[c.x-1][c.y];
+            decreaseHP( c.x-1, c.y );
             exit.x = c.x;
             exit.y = c.y;
             exit.dir = NONE;
             return exit;
         }
-        if ( c.x + 1 < m_board.size() && m_board[c.x+1][c.y] )
+        if ( c.x+1 < row && hasMirror(c.x+1, c.y) )
         {
-            if ( m_board[c.x+1][c.y] != INFINITE_HP ) --m_board[c.x+1][c.y];
+            decreaseHP( c.x+1, c.y );
             exit.x = c.x;
             exit.y = c.y;
             exit.dir = NONE;
@@ -166,24 +166,144 @@ Coord ReyBoard::move(const Coord &c)
 {
     Coord exit;
 
-    if ( m_board[c.x][c.y] )
+    if ( hasMirror( c.x, c.y ) )
     {
-        if ( m_board[c.x][c.y] != INFINITE_HP ) --m_board[c.x][c.y];
-        exit.x = -1;
-        exit.y = -1;
-        exit.dir = NONE;
-
-        return exit;
+        decreaseHP( c.x, c.y );
+        return disappear();
     }
 
+    int row = m_board.size();
+    int col = m_board.front().size();
+    int cx = c.x, cy = c.y;
+
     // rules for deflection
+    switch( c.dir )
+    {
+    case UPWARDS:
+    {
+        if ( cx-1 > 0 && cy+1 < col && hasMirror(cx-1, cy+1) )
+        {
+            decreaseHP(cx-1, cy+1);
+            return turnLeft(c);
+        }
+
+        if ( cx-1 > 0 && cy-1 > 0 && hasMirror(cx-1, cy-1) )
+        {
+            decreaseHP(cx-1, cy-1);
+            return turnRight(c);
+        }
+
+        exit = c;
+        exit.x--;
+        return exit;
+    }
+    break;
+    case DOWNWARDS:
+    {
+        if ( cx+1 < row && cy+1 < col && hasMirror(cx+1, cy+1) )
+        {
+            decreaseHP(cx+1, cy+1);
+            return turnRight(c);
+        }
+
+        if ( cx+1 < row && cy-1 > 0 && hasMirror(cx+1, cy-1) )
+        {
+            decreaseHP(cx+1, cy-1);
+            return turnLeft(c);
+        }
+
+        exit = c;
+        exit.x++;
+        return exit;
+    }
+    break;
+    case RIGHTWARDS:
+    {
+        if ( cx-1 > 0 && cy+1 < col && hasMirror(cx-1, cy+1) )
+        {
+            decreaseHP(cx-1, cy+1);
+            return turnRight(c);
+        }
+
+        if ( cx+1 < row && cy+1 < col && hasMirror(cx+1, cy+1) )
+        {
+            decreaseHP(cx+1, cy+1);
+            return turnLeft(c);
+        }
+
+        exit = c;
+        exit.y++;
+        return exit;
+    }
+    break;
+    case LEFTWARDS:
+    {
+        if ( cx-1 > 0 && cy-1 > 0 && hasMirror(cx-1, cy-1) )
+        {
+            decreaseHP(cx-1, cy-1);
+            return turnLeft(c);
+        }
+
+        if ( cx+1 < row && cy-1 > 0 && hasMirror(cx+1, cy-1) )
+        {
+            decreaseHP(cx+1, cy-1);
+            return turnRight(c);
+        }
+
+        exit = c;
+        exit.y--;
+        return exit;
+    }
+    break;
+    case NONE:
+        break;
+    }
+
+    // should never reach here
+    return exit;
+}
+
+Coord ReyBoard::turnRight(const Coord &c)
+{
+    Coord n = c;
+
+    switch( n.dir )
+    {
+    case UPWARDS: n.dir = RIGHTWARDS; return n;
+    case DOWNWARDS: n.dir = LEFTWARDS; return n;
+    case RIGHTWARDS: n.dir = DOWNWARDS; return n;
+    case LEFTWARDS: n.dir = UPWARDS; return n;
+    case NONE: break;
+    }
+
+    // should never reach here
+    return n;
+}
+
+Coord ReyBoard::turnLeft(const Coord &c)
+{
+    Coord n = c;
+
+    switch( n.dir )
+    {
+    case UPWARDS: n.dir = LEFTWARDS; return n;
+    case DOWNWARDS: n.dir = RIGHTWARDS; return n;
+    case RIGHTWARDS: n.dir = UPWARDS; return n;
+    case LEFTWARDS: n.dir = DOWNWARDS; return n;
+    case NONE: break;
+    }
+
+    // should never reach here
+    return n;
 }
 
 void ReyBoard::print( std::ostream& os ) const
 {
-    for ( int i = 1; i < m_board.size(); ++i )
+    int iend = m_board.size();
+    int jend = m_board.front().size();
+    for ( int i = 1; i < iend; ++i )
     {
-        for ( int j = 1; j < m_board.front().size(); ++j )
+        for ( int j = 1; j < jend; ++j )
         {
             os << std::setw(4) << m_board[i][j];
         }
@@ -195,4 +315,9 @@ std::ostream& operator << ( std::ostream& os, const ReyBoard& o )
 {
     o.print( os );
     return os;
+}
+
+std::ostream& operator << ( std::ostream& os, const Coord& o )
+{
+    return os << "{" << o.x << "," << o.y << "}";
 }
