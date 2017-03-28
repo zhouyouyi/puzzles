@@ -65,7 +65,7 @@ protected:
     oprice_t m_last_traded_price;
     osize_t  m_volume_at_last_traded_price;
 
-    order_inventory_t m_orders;
+    order_inventory_t m_orders[2]; // 0 - BID, 1 - ASK
 };
 
 std::ostream& operator << ( std::ostream& os, const order_book_t& ob );

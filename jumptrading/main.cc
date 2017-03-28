@@ -3,6 +3,8 @@
 #include <string>
 #include <cstdio>
 
+#include <boost/cstdint.hpp>
+
 #include "order_book.h"
 #include "perf_counter.h"
 
@@ -26,7 +28,7 @@ int main(int argc, char* argv[])
     while ( std::getline( ifs, line ) )
     {
         char action;
-        int oid;
+        oid_t oid;
         char side;
         int size;
         double price;
@@ -44,7 +46,7 @@ int main(int argc, char* argv[])
             {
             case 'A':
             {
-                if ( sscanf( line.c_str(), "%c,%d,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
+                if ( sscanf( line.c_str(), "%c,%lx,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -64,7 +66,7 @@ int main(int argc, char* argv[])
             }
             case 'X':
             {
-                if ( sscanf( line.c_str(), "%c,%d,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
+                if ( sscanf( line.c_str(), "%c,%lx,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -84,7 +86,7 @@ int main(int argc, char* argv[])
             }
             case 'M':
             {
-                if ( sscanf( line.c_str(), "%c,%d,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
+                if ( sscanf( line.c_str(), "%c,%lx,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -130,14 +132,14 @@ int main(int argc, char* argv[])
 
         if ( ++counter % 10 == 0 )
         {
-            std::cout << ob << std::endl;
+            // std::cout << ob << std::endl;
             counter = 0;
         }
 
         std::cout << "midquote: " << ob.get_mid_price() << std::endl;
     }
 
-    std::cout << ob << std::endl;
+    // std::cout << ob << std::endl;
 
     std::cout << "Processed " << processed << " message(s), discarded " << discarded << " message(s)." << std::endl;
 

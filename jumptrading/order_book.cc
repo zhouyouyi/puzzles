@@ -24,7 +24,9 @@ order_book_t::~order_book_t()
 
 void order_book_t::on_order_insert(const oid_t &_oid, const oside_t &_side, const oprice_t &_price, const osize_t &_size)
 {
-    if ( m_orders.find( _oid ) != m_orders.end() )
+    order_inventory_t& orders = ( _side == BID ? m_orders[0] : m_orders[1] );
+
+    if ( orders.find( _oid ) != orders.end() )
     {
         std::cerr << "Duplicated order id " << _oid << std::endl;
         return;
@@ -32,7 +34,7 @@ void order_book_t::on_order_insert(const oid_t &_oid, const oside_t &_side, cons
 
     order_ptr_t order( new order_t( _oid, _side, _price, _size ) );
 
-    m_orders[order->oid] = order;
+    orders[order->oid] = order;
 
     book_side_t& bside = ( _side == BID ? m_book[0] : m_book[1] );
 
@@ -56,8 +58,10 @@ void order_book_t::on_order_insert(const oid_t &_oid, const oside_t &_side, cons
 
 void order_book_t::on_order_remove(const oid_t &_oid, const oside_t& _side, const oprice_t& _price, const osize_t& _size)
 {
-    order_inventory_t::iterator iter = m_orders.find( _oid );
-    if ( iter == m_orders.end() )
+    order_inventory_t& orders = ( _side == BID ? m_orders[0] : m_orders[1] );
+
+    order_inventory_t::iterator iter = orders.find( _oid );
+    if ( iter == orders.end() )
     {
         std::cerr << "Unknown order id " << _oid << std::endl;
         return;
@@ -74,13 +78,15 @@ void order_book_t::on_order_remove(const oid_t &_oid, const oside_t& _side, cons
         delete order->level;
     }
 
-    m_orders.erase( iter );
+    orders.erase( iter );
 }
 
 void order_book_t::on_order_modify(const oid_t &_oid, const oside_t &_side, const oprice_t &_price, const osize_t &_size)
 {
-    order_inventory_t::iterator iter = m_orders.find( _oid );
-    if ( iter == m_orders.end() )
+    order_inventory_t& orders = ( _side == BID ? m_orders[0] : m_orders[1] );
+
+    order_inventory_t::iterator iter = orders.find( _oid );
+    if ( iter == orders.end() )
     {
         std::cerr << "Unknown order id " << _oid << std::endl;
         return;

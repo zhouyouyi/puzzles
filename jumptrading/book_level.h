@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <boost/noncopyable.hpp>
+#include <boost/cstdint.hpp>
 
 #define BOOST_MULTI_INDEX_DISABLE_SERIALIZATION // eliminate unnecessary dependency
 #include <boost/multi_index_container.hpp>
@@ -12,10 +13,10 @@
 #include <boost/multi_index/member.hpp>
 #undef BOOST_MULTI_INDEX_DISABLE_SERIALIZATION
 
-typedef unsigned int oid_t;
-typedef unsigned int osize_t;
-typedef double       oprice_t;
-typedef char         oside_t;
+typedef uint64_t oid_t;
+typedef uint32_t osize_t;
+typedef double   oprice_t;
+typedef char     oside_t;
 
 class book_level_t;
 

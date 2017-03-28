@@ -1,5 +1,5 @@
 CC := g++
-CFLAGS := -Wall -g -pg
+CFLAGS := -Wall -O3
 TARGET := feedhandler
 
 SRCS := $(wildcard *.cc)
