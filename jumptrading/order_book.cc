@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <iomanip>
 
 #include <boost/foreach.hpp>
 
@@ -28,7 +29,7 @@ void order_book_t::on_order_insert(const oid_t &_oid, const oside_t &_side, cons
 
     if ( orders.find( _oid ) != orders.end() )
     {
-        std::cerr << "Duplicated order id " << _oid << std::endl;
+        // std::cerr << "Duplicated order id " << _oid << std::endl;
         return;
     }
 
@@ -63,7 +64,7 @@ void order_book_t::on_order_remove(const oid_t &_oid, const oside_t& _side, cons
     order_inventory_t::iterator iter = orders.find( _oid );
     if ( iter == orders.end() )
     {
-        std::cerr << "Unknown order id " << _oid << std::endl;
+        // std::cerr << "Unknown order id " << std::hex << std::uppercase << _oid << std::nouppercase << std::dec << std::endl;
         return;
     }
 
@@ -88,7 +89,7 @@ void order_book_t::on_order_modify(const oid_t &_oid, const oside_t &_side, cons
     order_inventory_t::iterator iter = orders.find( _oid );
     if ( iter == orders.end() )
     {
-        std::cerr << "Unknown order id " << _oid << std::endl;
+        // std::cerr << "Unknown order id " << std::hex << std::uppercase << _oid << std::nouppercase << std::dec << std::endl;
         return;
     }
 
@@ -96,23 +97,38 @@ void order_book_t::on_order_modify(const oid_t &_oid, const oside_t &_side, cons
 
     if ( _size == 0 || _size > order->size )
     {
-        std::cerr << "Order size " << _size << " larger than original size " << order->size << std::endl;
+        // std::cerr << "Order size " << _size << " larger than original size " << order->size << std::endl;
         return;
     }
 
-    order->level->set_total_size( order->level->get_total_size() + _size - order->size );
+    order->level->set_size( order->level->get_size() + _size - order->size );
     order->size = _size;
+}
+
+void order_book_t::on_trade(const oprice_t &price, const osize_t &size)
+{
+    if ( EQ( price, m_last_traded_price ) )
+    {
+        m_volume_at_last_traded_price += size;
+    }
+    else
+    {
+        m_last_traded_price = price;
+        m_volume_at_last_traded_price = size;
+    }
 }
 
 void order_book_t::print( std::ostream& os ) const
 {
+    os << "------------------------------------------------------------" << std::endl;
+
     price_index_t::reverse_iterator ater = m_book[1].get<1>().rbegin();
     price_index_t::reverse_iterator aend = m_book[1].get<1>().rend();
 
     for(; ater != aend; ++ater)
     {
         const book_level_t* bl = *ater;
-        os << bl->get_price();
+        os << std::setw(12) << std::fixed << std::setprecision(2) << bl->get_price();
 
         book_level_t::const_iterator iter = bl->begin();
         book_level_t::const_iterator iend = bl->end();
@@ -124,6 +140,8 @@ void order_book_t::print( std::ostream& os ) const
 
         os << std::endl;
     }
+
+    os << "------------------------------------------------------------" << std::endl;
 
     price_index_t::reverse_iterator bter = m_book[0].get<1>().rbegin();
     price_index_t::reverse_iterator bend = m_book[0].get<1>().rend();
@@ -131,7 +149,7 @@ void order_book_t::print( std::ostream& os ) const
     for(; bter != bend; ++bter)
     {
         const book_level_t* bl = *bter;
-        os << bl->get_price();
+        os << std::setw(12) << std::fixed << std::setprecision(2) << bl->get_price();
 
         book_level_t::const_iterator iter = bl->begin();
         book_level_t::const_iterator iend = bl->end();
@@ -143,14 +161,41 @@ void order_book_t::print( std::ostream& os ) const
 
         os << std::endl;
     }
+
+    os << "------------------------------------------------------------" << std::endl;
 }
 
 oprice_t order_book_t::get_mid_price() const
 {
-    if ( m_book[0].empty() || m_book[1].empty() || GE( (*(m_book[0].get<1>().rbegin()))->get_price(), (*(m_book[1].get<1>().begin()))->get_price() ) )
+    if ( m_book[0].empty() || m_book[1].empty() )
+    {
         return std::numeric_limits<double>::quiet_NaN();
+    }
+    double bid = (*(m_book[0].get<1>().rbegin()))->get_price();
+    double ask = (*(m_book[1].get<1>().begin()))->get_price();
+    if ( GE( bid, ask ) ) return std::numeric_limits<double>::quiet_NaN();
 
-    return ((*(m_book[0].get<1>().rbegin()))->get_price()+(*(m_book[1].get<1>().begin()))->get_price()) / 2.0;
+    return (bid+ask) / 2.0;
+}
+
+order_book_t::const_bid_iterator order_book_t::bid_begin() const
+{
+    return m_book[0].get<1>().rbegin();
+}
+
+order_book_t::const_bid_iterator order_book_t::bid_end()   const
+{
+    return m_book[0].get<1>().rend();
+}
+
+order_book_t::const_ask_iterator order_book_t::ask_begin() const
+{
+    return m_book[1].get<1>().begin();
+}
+
+order_book_t::const_ask_iterator order_book_t::ask_end()   const
+{
+    return m_book[1].get<1>().end();
 }
 
 std::ostream& operator << ( std::ostream& os, const order_book_t& ob )

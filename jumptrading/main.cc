@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <cstdio>
 
@@ -120,7 +121,7 @@ int main(int argc, char* argv[])
                     break;
                 }
 
-                // ob.on_trade(price, size);
+                ob.on_trade(price, size);
                 ++processed;
                 break;
             }
@@ -130,20 +131,28 @@ int main(int argc, char* argv[])
             }
         }
 
+        if ( action == 'T' )
+        {
+            // std::cout << line << " => " << ob.last_volume() << "@" << ob.last_price() << std::endl;
+        }
+
         if ( ++counter % 10 == 0 )
         {
             // std::cout << ob << std::endl;
             counter = 0;
+            // std::getchar();
         }
 
-        std::cout << "midquote: " << ob.get_mid_price() << std::endl;
+        // std::cout << line << std::endl;
+        // std::cout << ob << std::endl;
+        // std::cout << "midquote: " << ob.get_mid_price() << std::endl;
     }
 
-    // std::cout << ob << std::endl;
+    std::cout << ob << std::endl;
 
-    std::cout << "Processed " << processed << " message(s), discarded " << discarded << " message(s)." << std::endl;
+    std::cerr << "Processed " << processed << " message(s), discarded " << discarded << " message(s)." << std::endl;
 
-    std::cout << "Average message processing time " << line_pf.get_average_time() * 1000000000 << " ns, "
+    std::cerr << "Average message processing time " << line_pf.get_average_time() * 1000000000 << " ns, "
               << "max " << line_pf.get_max_time() * 1000000000 << " ns, "
               << "min " << line_pf.get_min_time() * 1000000000 << " ns."
               << std::endl;

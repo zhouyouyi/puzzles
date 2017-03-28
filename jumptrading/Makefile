@@ -1,5 +1,6 @@
-CC := g++
-CFLAGS := -Wall -O3
+CXX := g++
+CXXFLAGS := -Wall -O3 -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
+LINKFLAGS := #-ltcmalloc
 TARGET := feedhandler
 
 SRCS := $(wildcard *.cc)
@@ -7,9 +8,9 @@ OBJS := $(SRCS:.cc=.o)
 
 all: $(TARGET)
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $^
+	$(CXX) -o $@ $^ $(LINKFLAGS)
 %.o: %.cc
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 clean:
 	rm -rf $(TARGET) *.o
 

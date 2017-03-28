@@ -69,10 +69,10 @@ public:
     void remove_order( const order_t* o );
 
     const oprice_t& get_price() const { return m_price; }
-    const osize_t&  get_total_size() const { return m_total_size; }
+    const osize_t&  get_size()  const { return m_total_size; }
 
     void set_price( const oprice_t& px ) { m_price = px; }
-    void set_total_size( const osize_t& sz ) { m_total_size = sz; }
+    void set_size( const osize_t& sz ) { m_total_size = sz; }
 
     void clear() { m_olist.clear(); }
 

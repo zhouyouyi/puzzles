@@ -32,18 +32,13 @@ protected:
     typedef book_side_t::nth_index<0>::type ident_index_t;
     typedef book_side_t::nth_index<1>::type price_index_t;
 
-    // typedef boost::multi_index_container< book_level_t*,
-    //                                       bmi::indexed_by<
-    //                                           bmi::hashed_unique< bmi::identity< book_level_t* > >,
-    //                                           bmi::ordered_unique< bmi::const_mem_fun< book_level_t, const oprice_t&, &book_level_t::get_price >, FPGreater >
-    //                                           > > bid_side_t;
-    // typedef bid_side_t::nth_index<0>::type bid_ident_index_t;
-    // typedef bid_side_t::nth_index<1>::type bid_price_index_t;
-
     typedef boost::shared_ptr<order_t> order_ptr_t;
 
     typedef boost::unordered_map< oid_t, order_ptr_t > order_inventory_t;
 public:
+    typedef price_index_t::const_reverse_iterator const_bid_iterator;
+    typedef price_index_t::const_iterator         const_ask_iterator;
+
     order_book_t() : m_last_traded_price(-1), m_volume_at_last_traded_price(0) {};
 
     /*virtual*/ ~order_book_t();
@@ -54,13 +49,23 @@ public:
 
     void on_order_modify( const oid_t& _oid, const oside_t& _side, const oprice_t& _price, const osize_t& _size );
 
+    void on_trade( const oprice_t& price, const osize_t& size );
+
     void print( std::ostream& os ) const;
+
+    oprice_t last_price() const { return m_last_traded_price; }
+    osize_t  last_volume() const { return m_volume_at_last_traded_price; }
 
     oprice_t get_mid_price() const;
 
+    const_bid_iterator bid_begin() const;
+    const_bid_iterator bid_end()   const;
+
+    const_ask_iterator ask_begin() const;
+    const_ask_iterator ask_end()   const;
+
 protected:
     book_side_t m_book[2]; // 0 - BID, 1 - ASK
-    //bid_side_t m_bid;
 
     oprice_t m_last_traded_price;
     osize_t  m_volume_at_last_traded_price;
