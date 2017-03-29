@@ -114,8 +114,8 @@ inline void perf_counter_t::stop()
 
     // Update the various values
     m_time_total += m_time_last;
-    if ( m_time_last < m_time_min )    m_time_min = m_time_last;
-    if ( m_time_last > m_time_max )    m_time_max = m_time_last;
+    if ( m_time_last < m_time_min ) { m_time_min = m_time_last; }
+    if ( m_time_last > m_time_max ) { m_time_max = m_time_last; }
     ++m_num_stops;
 }
 

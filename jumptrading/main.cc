@@ -3,6 +3,8 @@
 #include <sstream>
 #include <string>
 #include <cstdio>
+#include <vector>
+#include <algorithm>
 
 #include <boost/cstdint.hpp>
 
@@ -26,6 +28,8 @@ int main(int argc, char* argv[])
     int processed = 0, discarded = 0;
     int counter = 0;
 
+    std::vector<double> quantiles;
+
     while ( std::getline( ifs, line ) )
     {
         char action;
@@ -41,13 +45,15 @@ int main(int argc, char* argv[])
             continue;
         }
 
+        if( line_pf.get_count() ) quantiles.push_back( line_pf.get_time() * 1e9 );
+
         PROFILE(line_pf)
         {
             switch( action )
             {
             case 'A':
             {
-                if ( sscanf( line.c_str(), "%c,%lx,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
+                if ( sscanf( line.c_str()+2, "%lx,%c,%d,%lf", &oid, &side, &size, &price ) < 4 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -67,7 +73,7 @@ int main(int argc, char* argv[])
             }
             case 'X':
             {
-                if ( sscanf( line.c_str(), "%c,%lx,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
+                if ( sscanf( line.c_str()+2, "%lx,%c,%d,%lf", &oid, &side, &size, &price ) < 4 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -87,7 +93,7 @@ int main(int argc, char* argv[])
             }
             case 'M':
             {
-                if ( sscanf( line.c_str(), "%c,%lx,%c,%d,%lf", &action, &oid, &side, &size, &price ) < 5 )
+                if ( sscanf( line.c_str()+2, "%lx,%c,%d,%lf", &oid, &side, &size, &price ) < 4 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -107,7 +113,7 @@ int main(int argc, char* argv[])
             }
             case 'T':
             {
-                if ( sscanf( line.c_str(), "%c,%d,%lf", &action, &size, &price ) < 3 )
+                if ( sscanf( line.c_str()+2, "%d,%lf", &size, &price ) < 2 )
                 {
                     std::cerr << "Cannot parse line " << line << std::endl;
                     ++discarded;
@@ -133,19 +139,16 @@ int main(int argc, char* argv[])
 
         if ( action == 'T' )
         {
-            // std::cout << line << " => " << ob.last_volume() << "@" << ob.last_price() << std::endl;
+            std::cout << line << " => " << ob.last_volume() << "@" << ob.last_price() << std::endl;
         }
 
         if ( ++counter % 10 == 0 )
         {
-            // std::cout << ob << std::endl;
+            std::cout << ob << std::endl;
             counter = 0;
-            // std::getchar();
         }
 
-        // std::cout << line << std::endl;
-        // std::cout << ob << std::endl;
-        // std::cout << "midquote: " << ob.get_mid_price() << std::endl;
+        std::cout << "midquote: " << ob.get_mid_price() << std::endl;
     }
 
     std::cout << ob << std::endl;
@@ -156,6 +159,17 @@ int main(int argc, char* argv[])
               << "max " << line_pf.get_max_time() * 1000000000 << " ns, "
               << "min " << line_pf.get_min_time() * 1000000000 << " ns."
               << std::endl;
+
+    std::sort( quantiles.begin(), quantiles.end() );
+    std::cerr << "Quantiles:"
+              << " 25% -> " << quantiles[ int(quantiles.size() * 0.25) ]
+              << " 50% -> " << quantiles[ int(quantiles.size() * 0.5) ]
+              << " 75% -> " << quantiles[ int(quantiles.size() * 0.75) ]
+              << " 90% -> " << quantiles[ int(quantiles.size() * 0.9) ]
+              << " 95% -> " << quantiles[ int(quantiles.size() * 0.95) ]
+              << " 99% -> " << quantiles[ int(quantiles.size() * 0.99) ]
+              << std::endl
+        ;
 
     return 0;
 }
