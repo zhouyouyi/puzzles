@@ -1,0 +1,67 @@
+1. HOW TO RUN
+   The program uses boost headers, please make sure boost headers are installed
+   and searchable in default include paths.
+
+   $> make
+   $> ./feedhandler sgx.cn1609.20160909.input
+
+2. DATA STRUCTURE
+   The problem description has no clear definition about what is the
+   desired representation of the order book but the sample provided
+   describes a full tick book maintaining each individual orders. Thus
+   I assume we are targeting at a full book.
+
+   Each order belongs to a certain price level and among the same price
+   level orders can be maintained as a list to simulate time priority.
+   The book will be managing these levels on both bid and ask sides.
+   Price levels may be inserted or deleted at any time and the same goes
+   with orders within each level.
+
+   In summary, the book:
+     a. maintains ordered price levels on each side (ASK or BID)
+     b. inserts or deletes price levels as new orders arrive or old orders vanish
+     c. inserts or deletes orders into/from price levels for correct
+        book representation
+
+   Therefore, I chose boost::multi_index_container to implement the book.
+   For book sides, an ordered container (like std::map) with ability to
+   quickly look-up a certain price level (like boost::unordered_map) is
+   ideal. For price levels, a sequencial container (like std::list) with
+   similar hash-like look-up for orders is desired.
+
+   typedef boost::multi_index_container< book_level_t*,
+                                          bmi::indexed_by<
+                                              bmi::hashed_unique< bmi::identity< book_level_t* > >,
+                                              bmi::ordered_unique< bmi::const_mem_fun< book_level_t, const oprice_t&, &book_level_t::get_price > >
+                                              > > book_side_t;
+   typedef boost::multi_index_container< const order_t*,
+                                          bmi::indexed_by<
+                                              bmi::hashed_unique< bmi::tag<hash_by_oid>, bmi::identity< const order_t* > >,
+                                              bmi::sequenced< bmi::tag<sequencial> >
+                                              > > orderlist_t;
+
+   We would need a global container for storing individual order's info
+   so that we don't have to copy them around. A hash map would suffice.
+
+   typedef boost::unordered_map< oid_t, order_ptr_t > order_inventory_t;
+
+3. TIME COMPLEXITY
+   Theoretically, inserting a new price level costs O(logN), deleting
+   one is amortized O(1). Inserting or deleting an order into/from a price
+   level are both amortized O(1).
+
+4. PERFORMANCE ANALYSIS
+   Test data is generated from SGX historical book data for CN.1609 on 2016.09.09.
+   SGX uses 64bit unsigned integer for order id which is recorded in HEX format
+   os I had to make a small change in the program to read HEX integers as well as
+   another change for maintaining correct order uniqueness as SGX order id is only
+   unique per side. In total, there are about 320K messages.
+
+   On a coarse granuality, I profiled the progam with google-perftools and included
+   the call graph generated. Hotspots are mostly I/O. In the finer aspects, I wrote
+   a simple performance counter for profiling the main section of code processing
+   each message and it scored an average of 2 microseconds per message. 99% of all
+   messages are processed under 3.5 microseconds.
+
+   I tried tcmalloc but there is no visible improvements which makes sense as the
+   program is not really heap heavy.
