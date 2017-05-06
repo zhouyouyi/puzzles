@@ -11,4 +11,4 @@ mergestock: mergestock.cc mergestockclient.cc
 	g++ -std=c++11 mergestockclient.cc -o client
 
 clean:
-	rm -f cprinter verque
+	rm -f cprinter verque server client
