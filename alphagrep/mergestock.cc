@@ -68,35 +68,24 @@ void merge_stock_t::push( uint32_t E, uint64_t V )
     {
         m_flag[E] = true;
         m_nReady++;
+
+        m_heap.push_back(E);
+
+        int now = m_heap.size()-1;
+
+        while ( now/2 && m_data_lists[m_heap[now/2]].front() > m_data_lists[E].front() )
+        {
+            m_heap[now] = m_heap[now/2];
+            now /= 2;
+        }
+
+        m_heap[now] = E;
     }
 
-    if ( is_valid() )
+    while ( is_valid() )
     {
-        m_heap.clear();
-        m_heap.push_back( std::numeric_limits<int>::min() );
-        // create heap
-        for ( int i = 1; i < m_data_lists.size(); ++i )
-        {
-            if ( m_data_lists[i].empty() ) continue;
-
-            m_heap.push_back(i);
-
-            int now = m_heap.size()-1;
-
-            while ( now/2 && m_data_lists[m_heap[now/2]].front() > m_data_lists[i].front() )
-            {
-                m_heap[now] = m_heap[now/2];
-                now /= 2;
-            }
-
-            m_heap[now] = i;
-        }
-
-        while ( is_valid() )
-        {
-            // pop heap and print
-            std::cout << pop() << std::endl;
-        }
+        // pop heap and print
+        std::cout << pop() << std::endl;
     }
 }
 
@@ -388,7 +377,6 @@ int main (int argc, char *argv[])
                   else
                   {
                       mq.mark_done(buf.exchange);
-                      done = 1;
                   }
                   
                 }
