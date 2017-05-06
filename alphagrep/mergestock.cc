@@ -225,8 +225,8 @@ int main (int argc, char *argv[])
         exit (EXIT_FAILURE);
     }
 
-    const int MAXEVENTS = 256;
     const int NEXCHANGE = atoi( argv[2] );
+    const int MAXEVENTS = NEXCHANGE + 2;
 
     sfd = create_and_bind (argv[1]);
     if (sfd == -1)
