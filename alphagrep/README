@@ -1,0 +1,43 @@
+0. BUILD
+   Require g++ >= 5.4 (with -std=c++11 support)
+   Run 'make'
+
+1. Circular Printer
+
+   Example:
+     $> ./cprinter ABCDEFGHIJ 3 4 2
+
+   Output:
+     Thread1: ABC
+     Thread2: DEF
+     Thread3: GHI
+     Thread4: JAB
+     Thread1: CDE
+     Thread2: FGH
+     Thread3: IJA
+     Thread4: BCD
+
+2. On The Fly Sort
+
+   Example:
+     $> ./mergestock 9999 4 & # listens on port 9999, waiting for 4 exchanges
+     $> for((i=1;i<=4;++i)); do ./mergestockclient 127.0.0.1 9999 $1.txt & done; wait
+
+   Output:
+     <sorted list of stock numbers>
+
+   An 'expected.txt' file is provided for verifying the result.
+
+3. Version Queue
+
+   Example:
+     $> ./verque
+     <input as many commands as you want>
+
+4. Reduce File
+
+   Example:
+     $> ./filesplit sample.txt 2
+
+   A list of output_*.txt files will be created per problem description.
+
